@@ -1,65 +1,307 @@
-import Image from "next/image";
+import FadeIn from '@/components/FadeIn';
+import Circle from '@/components/Circle';
+import BentoCard from '@/components/BentoCard';
+import { LetterSwapPingPong } from '@/components/ui/letter-swap';
+import { PhotoGallery, StatsRow } from '@/components/ui/gallery';
+import { ContactSocialStrip } from '@/components/ui/contact-social-strip';
+import { SectionLabel } from '@/components/ui/section-label';
+import { getAllProjects } from '@/lib/projects';
 
-export default function Home() {
+export default function HomePage() {
+  const projects = getAllProjects();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      {/* ── Hero ──────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden min-h-screen flex items-center justify-center section-diagonal bg-[var(--color-bg)] pt-32 pb-16">
+        {/* Plain circles — no blur, no gradient */}
+        <Circle color="#8fc4a0" size={640} opacity={0.30} className="-right-48 -top-32"   delay={0}    />
+        <Circle color="#e8869a" size={380} opacity={0.25} className="-left-32  -bottom-20" delay={1800} />
+        <Circle color="#a8c9de" size={240} opacity={0.20} className="-left-16  top-16"     delay={900}  />
+
+        <div className="container relative z-10 flex flex-col items-center text-center max-w-4xl">
+          <h1
+            className="text-[clamp(3.5rem,9vw,6.5rem)] leading-[1.15] text-[var(--color-heading)] overflow-visible"
+            style={{
+              fontFamily: 'var(--font-display)',
+              letterSpacing: '-0.02em',
+              animation: 'heroFadeIn 0.8s 0.1s var(--ease-organic) both',
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            {/* Line 1 */}
+            <LetterSwapPingPong label="Where" staggerFrom="first" staggerDuration={0.04} />{' '}
+            <LetterSwapPingPong label="data" staggerFrom="first" staggerDuration={0.04} />{' '}
+            <LetterSwapPingPong label="meets" staggerFrom="first" staggerDuration={0.04} />
+            <br />
+            {/* Line 2 */}
+            <LetterSwapPingPong
+              label="emotion."
+              staggerFrom="first"
+              staggerDuration={0.04}
+              style={{ fontStyle: 'italic', color: 'var(--color-terra)' }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <br />
+            {/* Line 3 */}
+            <LetterSwapPingPong label="I" staggerFrom="first" staggerDuration={0.04} />{' '}
+            <LetterSwapPingPong label="design" staggerFrom="first" staggerDuration={0.04} />{' '}
+            <LetterSwapPingPong label="the" staggerFrom="first" staggerDuration={0.04} />{' '}
+            <LetterSwapPingPong label="space" staggerFrom="first" staggerDuration={0.04} />{' '}
+            <LetterSwapPingPong label="between." staggerFrom="first" staggerDuration={0.04} />
+          </h1>
+          <p
+            className="mt-8 text-base md:text-lg text-[var(--color-text)]/65 max-w-lg leading-[1.7]"
+            style={{ animation: 'heroFadeIn 0.8s 0.2s var(--ease-organic) both' }}
           >
-            Documentation
-          </a>
+            I&rsquo;m Luisina — a UX/UI designer with a background in GIS and Architecture.
+            I work at the intersection of data, space and human experience.
+          </p>
+          <div
+            className="mt-10 flex flex-wrap justify-center gap-4"
+            style={{ animation: 'heroFadeIn 0.8s 0.3s var(--ease-organic) both' }}
+          >
+            <a
+              href="mailto:luisina@example.com"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[var(--color-terra)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Say hello →
+            </a>
+          </div>
+
         </div>
-      </main>
-    </div>
+
+      </section>
+
+      {/* ── Work ──────────────────────────────────────────────────── */}
+      <section id="work" className="py-24 relative overflow-hidden section-diagonal-top bg-[var(--color-bg)]">
+        <div className="container px-20 md:px-24 xl:px-28 max-w-6xl mx-auto">
+          <FadeIn>
+            <h2
+              className="text-4xl md:text-5xl text-[var(--color-heading)] mb-14 mt-4"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Case studies
+            </h2>
+          </FadeIn>
+
+          {/* Bento project grid — editorial, clip-path reveal on hover */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ gridAutoRows: 'minmax(280px, auto)' }}>
+
+            {/* MoodMaps — featured editorial (2 cols × 1 row) */}
+            <FadeIn className="md:col-span-2" delay={0}>
+              <BentoCard project={projects[0]}>
+                <article className="h-full bg-[var(--color-card)] border border-[var(--color-text)]/8 p-8 flex flex-col justify-end">
+                  <h3
+                    className="text-[clamp(2.4rem,4.5vw,4rem)] leading-[0.95] text-[var(--color-heading)] mb-3"
+                    style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}
+                  >
+                    {projects[0].title}
+                  </h3>
+                  <p className="text-[var(--color-text)]/55 text-base leading-relaxed max-w-sm">
+                    {projects[0].tagline}
+                  </p>
+                </article>
+              </BentoCard>
+            </FadeIn>
+
+            {/* Contigo — tall portrait (1 col × 2 rows) */}
+            <FadeIn className="md:row-span-2" delay={80}>
+              <BentoCard project={projects[1]}>
+                <article
+                  className="h-full p-8 flex flex-col justify-end border border-[var(--color-text)]/8"
+                  style={{ backgroundColor: 'color-mix(in srgb, var(--color-blue) 18%, var(--color-card))' }}
+                >
+                  <h3
+                    className="text-3xl leading-tight text-[var(--color-heading)] mb-2"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {projects[1].title}
+                  </h3>
+                  <p className="text-sm text-[var(--color-text)]/55 leading-relaxed">
+                    {projects[1].tagline}
+                  </p>
+                </article>
+              </BentoCard>
+            </FadeIn>
+
+            {/* DoctorD+ — text card (1 col × 1 row) */}
+            <FadeIn delay={160}>
+              <BentoCard project={projects[3]}>
+                <article className="h-full bg-[var(--color-card)] border border-[var(--color-text)]/8 p-8 flex flex-col justify-end">
+                  <h3
+                    className="text-3xl leading-tight text-[var(--color-heading)] mb-2"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {projects[3].title}
+                  </h3>
+                  <p className="text-sm text-[var(--color-text)]/55 leading-relaxed">
+                    {projects[3].tagline}
+                  </p>
+                </article>
+              </BentoCard>
+            </FadeIn>
+
+            {/* EcoGenie — accent card (1 col × 1 row) */}
+            <FadeIn delay={220}>
+              <BentoCard project={projects[2]} overlayTitleColor="#2d6b5a" overlayTaglineColor="rgba(45,107,90,0.7)">
+                <article
+                  className="h-full p-8 flex flex-col justify-end"
+                  style={{ backgroundColor: 'var(--color-terra)' }}
+                >
+                  <h3
+                    className="text-3xl leading-tight mb-2"
+                    style={{ fontFamily: 'var(--font-display)', color: '#fdf8f5' }}
+                  >
+                    {projects[2].title}
+                  </h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(253,248,245,0.75)' }}>
+                    {projects[2].tagline}
+                  </p>
+                </article>
+              </BentoCard>
+            </FadeIn>
+
+            {/* From Maps to Memories — wide editorial (3 cols × 1 row) */}
+            <FadeIn className="md:col-span-3" delay={280}>
+              <BentoCard project={projects[4]} overlayTitleColor="#2d6b5a" overlayTaglineColor="rgba(45,107,90,0.7)">
+                <article
+                  className="h-full p-8 flex flex-col justify-end"
+                  style={{ backgroundColor: '#2d6b5a' }}
+                >
+                  <h3
+                    className="text-[clamp(2rem,3.5vw,3.2rem)] leading-[0.95] mb-3"
+                    style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', color: '#fdf8f5' }}
+                  >
+                    {projects[4].title}
+                  </h3>
+                  <p className="text-base leading-relaxed max-w-lg" style={{ color: 'rgba(253,248,245,0.75)' }}>
+                    {projects[4].tagline}
+                  </p>
+                </article>
+              </BentoCard>
+            </FadeIn>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── About ─────────────────────────────────────────────────── */}
+      <section id="about" className="py-24 relative overflow-hidden">
+        <Circle color="#e8869a" size={360} opacity={0.18} className="-right-24 -top-16"  delay={1200} />
+        <Circle color="#8fc4a0" size={260} opacity={0.15} className="-left-20 bottom-0" delay={3000} />
+
+        <div className="container relative z-10 px-20 md:px-24 xl:px-28 max-w-6xl mx-auto">
+
+          <FadeIn>
+            <SectionLabel text="About" className="mb-8" />
+          </FadeIn>
+
+          {/* Two-column: text left, gallery right */}
+          <FadeIn>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12 items-center">
+
+              {/* Left — headline + bio */}
+              <div className="flex flex-col gap-8">
+                <h2
+                  className="text-4xl md:text-5xl text-[var(--color-heading)] leading-tight"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  Designing the{' '}
+                  <em className="not-italic text-[var(--color-terra)]">emotional layer</em>
+                  <br />
+                  of systems.
+                </h2>
+                <div className="space-y-4 text-[var(--color-text)]/70 leading-relaxed text-base">
+                  <p>
+                    I&rsquo;m Luisina — a UX/UI designer who believes every system has a feeling.
+                    With a background in GIS and Architecture, I work at the intersection of data,
+                    space, and human experience.
+                  </p>
+                  <p>
+                    By day I design enterprise products. By passion I design systems that make
+                    people feel something.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right — photo gallery */}
+              <PhotoGallery />
+
+            </div>
+          </FadeIn>
+
+          {/* Stats row */}
+          <FadeIn delay={120}>
+            <StatsRow />
+          </FadeIn>
+
+        </div>
+      </section>
+
+      {/* ── Contact ───────────────────────────────────────────────── */}
+      <section
+        id="contact"
+        className="py-32 md:py-40"
+        style={{ backgroundColor: 'var(--color-bg)' }}
+      >
+        <div className="container flex justify-center">
+
+          {/* Card + rose strip stacked */}
+          <FadeIn className="w-full flex justify-center">
+            <div className="flex flex-col w-full" style={{ maxWidth: 700 }}>
+
+              {/* Terracotta card — square bottom corners so strip attaches flush */}
+              <div
+                className="relative flex flex-col items-center text-center"
+                style={{
+                  backgroundColor: 'var(--color-terra)',
+                  borderRadius: '28px 28px 0 0',
+                  padding: '60px 60px 80px',
+                  overflow: 'visible',
+                }}
+              >
+                {/* Symbol */}
+                <span className="text-xl mb-4" style={{ color: 'rgba(253,248,245,0.6)' }}>
+                  ✦
+                </span>
+
+                {/* Subtext */}
+                <p
+                  className="text-sm font-medium mb-6 leading-relaxed"
+                  style={{ color: 'rgba(253,248,245,0.72)', letterSpacing: '0.01em' }}
+                >
+                  Drop a pin. Draw a line. Let&rsquo;s start a chat!
+                </p>
+
+                {/* Oversized headline — bleeds out of card bottom */}
+                <h2
+                  className="leading-[0.88]"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(80px, 12vw, 160px)',
+                    color: '#fdf8f5',
+                    letterSpacing: '-0.03em',
+                    position: 'relative',
+                    bottom: '-0.22em',
+                  }}
+                >
+                  <a
+                    href="mailto:luisina@example.com"
+                    className="transition-opacity hover:opacity-80"
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                  >
+                    Say hello.
+                  </a>
+                </h2>
+              </div>
+
+              {/* Rose strip — attaches to card bottom */}
+              <ContactSocialStrip />
+
+            </div>
+          </FadeIn>
+
+        </div>
+      </section>
+    </>
   );
 }
