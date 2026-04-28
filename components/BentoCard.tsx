@@ -47,7 +47,7 @@ export default function BentoCard({ project, children, overlayTitleColor = '#fdf
 
   const handleMouseLeave = () => {
     gsap.to(overlayRef.current, {
-      clipPath: 'circle(42px at 50px 50px)',
+      clipPath: 'circle(36px at 50px 50px)',
       duration: 0.8,
       ease: 'expo.inOut',
     });
@@ -70,13 +70,14 @@ export default function BentoCard({ project, children, overlayTitleColor = '#fdf
         {/* Tags — always visible, inline with blob circle */}
         <div
           className="absolute top-0 left-0 right-0 flex flex-row flex-wrap items-start gap-2"
-          style={{ height: 92, paddingLeft: 120, paddingRight: 16, paddingTop: 28 }}
+          style={{ height: 92, paddingLeft: 110, paddingRight: 16, paddingTop: 28 }}
         >
           {project.tags.map(t => (
             <span
               key={t}
-              className="inline-block text-xs font-medium tracking-widest uppercase px-3 py-1 rounded-full"
+              className="inline-block font-medium tracking-widest uppercase px-2 py-0.5 rounded-full"
               style={{
+                fontSize:        10,
                 backgroundColor: 'transparent',
                 color:           tagColor,
                 border:          `1px solid ${tagColor}66`,
@@ -91,50 +92,32 @@ export default function BentoCard({ project, children, overlayTitleColor = '#fdf
         <div
           ref={overlayRef}
           aria-hidden="true"
-          className="absolute inset-0 flex flex-col justify-between pointer-events-none"
+          className="absolute inset-0 flex flex-col justify-end pointer-events-none"
           style={{
-            clipPath: 'circle(42px at 50px 50px)',
+            clipPath: 'circle(36px at 50px 50px)',
             backgroundColor: accentColor,
           }}
         >
-          {/* Overlay tags — top, same position as default tags */}
-          <div
-            className="flex flex-row flex-wrap items-start gap-2 flex-shrink-0"
-            style={{ height: 92, paddingLeft: 120, paddingRight: 16, paddingTop: 28 }}
-          >
-            {project.tags.map(t => (
-              <span
-                key={t}
-                className="inline-block text-xs font-medium tracking-widest uppercase px-3 py-1 rounded-full"
-                style={{
-                  backgroundColor: 'transparent',
-                  color:           '#ffffff',
-                  border:          '1px solid rgba(255,255,255,0.4)',
-                }}
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-
-          {/* Title + tagline — bottom */}
+          {/* Tagline above title — bottom */}
           <div className="p-8 pt-0">
+            <p
+              className="leading-relaxed"
+              style={{ color: overlayTaglineColor, fontFamily: 'var(--font-sans)', fontSize: 16, marginBottom: 6 }}
+            >
+              {project.tagline}
+            </p>
             <h3
-              className="text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] mb-3"
               style={{
                 fontFamily: 'var(--font-display)',
-                color: overlayTitleColor,
+                fontSize: 54,
+                lineHeight: 0.95,
                 letterSpacing: '-0.02em',
+                color: overlayTitleColor,
+                margin: 0,
               }}
             >
               {project.title}
             </h3>
-            <p
-              className="text-base leading-relaxed"
-              style={{ color: overlayTaglineColor, fontFamily: 'var(--font-sans)' }}
-            >
-              {project.tagline}
-            </p>
           </div>
         </div>
 

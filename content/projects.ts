@@ -16,7 +16,7 @@ export const projects: Project[] = [
   {
     slug: 'moodmaps',
     title: 'MoodMaps',
-    tagline: 'What if your map knew how you felt?',
+    tagline: 'MoodMaps explores what navigation could feel like if wellbeing was a design layer, not an afterthought.',
     tags: ['EMOTION', 'GIS', 'NAVIGATION', 'UX RESEARCH'],
     accent: 'sage',
     meta: {
@@ -58,7 +58,7 @@ export const projects: Project[] = [
   {
     slug: 'contigo',
     title: 'Contigo',
-    tagline: 'A calm companion for moments of panic.',
+    tagline: 'Contigo is a calm companion for moments of panic, designed for the people who need it most.',
     tags: ['MENTAL HEALTH', 'ACCESSIBILITY', 'MOBILE'],
     accent: 'blue',
     meta: {
@@ -100,7 +100,7 @@ export const projects: Project[] = [
   {
     slug: 'ecogenie',
     title: 'EcoGenie',
-    tagline: 'Your AI guide to a greener home.',
+    tagline: 'EcoGenie is an AI-powered energy assistant helping households live greener, one smart nudge at a time.',
     tags: ['AI', 'SUSTAINABILITY', 'PRODUCT DESIGN'],
     accent: 'peach',
     meta: {
@@ -142,7 +142,7 @@ export const projects: Project[] = [
   {
     slug: 'doctord-plus',
     title: 'DoctorD+',
-    tagline: 'Redesigning how patients access healthcare.',
+    tagline: 'DoctorD+ simplifies your medical life, one place for every appointment, record and moment that matters.',
     tags: ['HEALTH', 'MOBILE UX', 'UX RESEARCH'],
     accent: 'rose',
     meta: {
@@ -184,7 +184,7 @@ export const projects: Project[] = [
   {
     slug: 'from-maps-to-memories',
     title: 'From Maps to Memories',
-    tagline: 'Where cartography meets personal narrative.',
+    tagline: 'From Maps to Memories is a personal migration story told through cartography, storytelling and design.',
     tags: ['STORYTELLING', 'ARCGIS', 'DATA VISUALIZATION'],
     accent: 'sage',
     meta: {

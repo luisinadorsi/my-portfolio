@@ -1,6 +1,7 @@
 import FadeIn from '@/components/FadeIn';
 import Circle from '@/components/Circle';
 import BentoCard from '@/components/BentoCard';
+import ProjectImage from '@/components/ProjectImage';
 import { LetterSwapPingPong } from '@/components/ui/letter-swap';
 import { PhotoGallery, StatsRow } from '@/components/ui/gallery';
 import { ContactSocialStrip } from '@/components/ui/contact-social-strip';
@@ -79,7 +80,7 @@ export default function HomePage() {
               className="text-4xl md:text-5xl text-[var(--color-heading)] mb-14 mt-4"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              Case studies
+              Work
             </h2>
           </FadeIn>
 
@@ -89,16 +90,14 @@ export default function HomePage() {
             {/* MoodMaps — featured editorial (2 cols × 1 row) */}
             <FadeIn className="md:col-span-2" delay={0}>
               <BentoCard project={projects[0]}>
-                <article className="h-full bg-[var(--color-card)] border border-[var(--color-text)]/8 p-8 flex flex-col justify-end">
-                  <h3
-                    className="text-[clamp(2.4rem,4.5vw,4rem)] leading-[0.95] text-[var(--color-heading)] mb-3"
-                    style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}
-                  >
-                    {projects[0].title}
-                  </h3>
-                  <p className="text-[var(--color-text)]/55 text-base leading-relaxed max-w-sm">
-                    {projects[0].tagline}
-                  </p>
+                <article style={{ position: 'relative', height: '100%' }}>
+                  <ProjectImage src="/projects/moodmaps.png" alt="MoodMaps" fallbackBg="#fdf8f5" />
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+                    <div style={{ position: 'absolute', top: 34, left: 34, width: 31, height: 31, borderRadius: '50%', backgroundColor: '#8fc4a0' }} />
+                    <div className="transition-opacity duration-150 group-hover:opacity-0" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 32px 32px' }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 54, color: '#2d6b5a', lineHeight: 0.95, letterSpacing: '-0.02em', margin: 0 }}>{projects[0].title}</h3>
+                    </div>
+                  </div>
                 </article>
               </BentoCard>
             </FadeIn>
@@ -106,19 +105,14 @@ export default function HomePage() {
             {/* Contigo — tall portrait (1 col × 2 rows) */}
             <FadeIn className="md:row-span-2" delay={80}>
               <BentoCard project={projects[1]}>
-                <article
-                  className="h-full p-8 flex flex-col justify-end border border-[var(--color-text)]/8"
-                  style={{ backgroundColor: 'color-mix(in srgb, var(--color-blue) 18%, var(--color-card))' }}
-                >
-                  <h3
-                    className="text-3xl leading-tight text-[var(--color-heading)] mb-2"
-                    style={{ fontFamily: 'var(--font-display)' }}
-                  >
-                    {projects[1].title}
-                  </h3>
-                  <p className="text-sm text-[var(--color-text)]/55 leading-relaxed">
-                    {projects[1].tagline}
-                  </p>
+                <article style={{ position: 'relative', height: '100%' }}>
+                  <ProjectImage src="/projects/contigo.png" alt="Contigo" fallbackBg="#c5dde8" />
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+                    <div style={{ position: 'absolute', top: 34, left: 34, width: 31, height: 31, borderRadius: '50%', backgroundColor: '#a8c9de' }} />
+                    <div className="transition-opacity duration-150 group-hover:opacity-0" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 32px 32px' }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 54, color: '#2d6b5a', lineHeight: 0.95, letterSpacing: '-0.02em', margin: 0 }}>{projects[1].title}</h3>
+                    </div>
+                  </div>
                 </article>
               </BentoCard>
             </FadeIn>
@@ -126,16 +120,14 @@ export default function HomePage() {
             {/* DoctorD+ — text card (1 col × 1 row) */}
             <FadeIn delay={160}>
               <BentoCard project={projects[3]}>
-                <article className="h-full bg-[var(--color-card)] border border-[var(--color-text)]/8 p-8 flex flex-col justify-end">
-                  <h3
-                    className="text-3xl leading-tight text-[var(--color-heading)] mb-2"
-                    style={{ fontFamily: 'var(--font-display)' }}
-                  >
-                    {projects[3].title}
-                  </h3>
-                  <p className="text-sm text-[var(--color-text)]/55 leading-relaxed">
-                    {projects[3].tagline}
-                  </p>
+                <article style={{ position: 'relative', height: '100%' }}>
+                  <ProjectImage src="/projects/doctord-plus.png" alt="DoctorD+" fallbackBg="#fdf8f5" />
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+                    <div style={{ position: 'absolute', top: 34, left: 34, width: 31, height: 31, borderRadius: '50%', backgroundColor: '#e8869a' }} />
+                    <div className="transition-opacity duration-150 group-hover:opacity-0" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 32px 32px' }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 54, color: '#2d6b5a', lineHeight: 0.95, letterSpacing: '-0.02em', margin: 0 }}>{projects[3].title}</h3>
+                    </div>
+                  </div>
                 </article>
               </BentoCard>
             </FadeIn>
@@ -143,19 +135,14 @@ export default function HomePage() {
             {/* EcoGenie — accent card (1 col × 1 row) */}
             <FadeIn delay={220}>
               <BentoCard project={projects[2]} overlayTitleColor="#2d6b5a" overlayTaglineColor="rgba(45,107,90,0.7)">
-                <article
-                  className="h-full p-8 flex flex-col justify-end"
-                  style={{ backgroundColor: 'var(--color-terra)' }}
-                >
-                  <h3
-                    className="text-3xl leading-tight mb-2"
-                    style={{ fontFamily: 'var(--font-display)', color: '#fdf8f5' }}
-                  >
-                    {projects[2].title}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(253,248,245,0.75)' }}>
-                    {projects[2].tagline}
-                  </p>
+                <article style={{ position: 'relative', height: '100%' }}>
+                  <ProjectImage src="/projects/ecogenie.png" alt="EcoGenie" fallbackBg="#d4643a" />
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+                    <div style={{ position: 'absolute', top: 34, left: 34, width: 31, height: 31, borderRadius: '50%', backgroundColor: '#f0b89a' }} />
+                    <div className="transition-opacity duration-150 group-hover:opacity-0" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 32px 32px' }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 54, color: '#fdf8f5', lineHeight: 0.95, letterSpacing: '-0.02em', margin: 0 }}>{projects[2].title}</h3>
+                    </div>
+                  </div>
                 </article>
               </BentoCard>
             </FadeIn>
@@ -163,19 +150,14 @@ export default function HomePage() {
             {/* From Maps to Memories — wide editorial (3 cols × 1 row) */}
             <FadeIn className="md:col-span-3" delay={280}>
               <BentoCard project={projects[4]} overlayTitleColor="#2d6b5a" overlayTaglineColor="rgba(45,107,90,0.7)">
-                <article
-                  className="h-full p-8 flex flex-col justify-end"
-                  style={{ backgroundColor: '#2d6b5a' }}
-                >
-                  <h3
-                    className="text-[clamp(2rem,3.5vw,3.2rem)] leading-[0.95] mb-3"
-                    style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', color: '#fdf8f5' }}
-                  >
-                    {projects[4].title}
-                  </h3>
-                  <p className="text-base leading-relaxed max-w-lg" style={{ color: 'rgba(253,248,245,0.75)' }}>
-                    {projects[4].tagline}
-                  </p>
+                <article style={{ position: 'relative', height: '100%' }}>
+                  <ProjectImage src="/projects/from-maps-to-memories.png" alt="From Maps to Memories" fallbackBg="#2d6b5a" />
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+                    <div style={{ position: 'absolute', top: 34, left: 34, width: 31, height: 31, borderRadius: '50%', backgroundColor: '#8fc4a0' }} />
+                    <div className="transition-opacity duration-150 group-hover:opacity-0" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 32px 32px' }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 54, color: '#fdf8f5', lineHeight: 0.95, letterSpacing: '-0.02em', margin: 0 }}>{projects[4].title}</h3>
+                    </div>
+                  </div>
                 </article>
               </BentoCard>
             </FadeIn>
