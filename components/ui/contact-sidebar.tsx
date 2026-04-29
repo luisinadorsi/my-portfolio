@@ -23,7 +23,7 @@ function SideLink({ label, href }: { label: string; href: string }) {
     >
       <span
         className="leading-[1.2]"
-        style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: '#2a2420' }}
+        style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'oklab(0.265625 0.00656099 0.00965214 / 0.7)' }}
       >
         {label}
       </span>
@@ -31,8 +31,8 @@ function SideLink({ label, href }: { label: string; href: string }) {
 
       {/* Slide-in underline */}
       <motion.span
-        className="absolute bottom-0 left-0 h-px bg-[#2a2420]"
-        style={{ width: '100%', transformOrigin: 'left' }}
+        className="absolute bottom-0 left-0 h-px"
+        style={{ backgroundColor: 'oklab(0.265625 0.00656099 0.00965214 / 0.7)', width: '100%', transformOrigin: 'left' }}
         initial={{ scaleX: 0 }}
         animate={{ scaleX: hovered ? 1 : 0 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}

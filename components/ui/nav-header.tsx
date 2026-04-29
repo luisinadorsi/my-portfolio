@@ -43,12 +43,12 @@ export function NavHeader({ items }: NavHeaderProps) {
             />
           )}
 
-          {/* Default state: #2a2420 on #f7ede8 — contrast 13.6:1 ✓ WCAG AAA
+          {/* Default state: oklab(0.265625 0.00656099 0.00965214 / 0.7) on #f7ede8 — contrast ~5.4:1 ✓ WCAG AA
               Hovered state: #f7ede8 on #2d6b5a  — contrast  5.2:1 ✓ WCAG AA  */}
           <span
             className="relative text-sm font-medium select-none transition-colors duration-150"
             style={{
-              color: hovered === item.label ? '#f7ede8' : '#2a2420',
+              color: hovered === item.label ? '#f7ede8' : 'oklab(0.265625 0.00656099 0.00965214 / 0.7)',
               zIndex: 1,
             }}
           >

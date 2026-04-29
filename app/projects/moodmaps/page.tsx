@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import FadeIn from '@/components/FadeIn';
 import Tag from '@/components/Tag';
 import PrevNext from '@/components/PrevNext';
 import { SectionLabel } from '@/components/ui/section-label';
 import { getAdjacent } from '@/lib/projects';
-import { FeatureCarousel, MOODMAPS_FEATURES } from '@/components/ui/feature-carousel';
+import { FocusRail } from '@/components/ui/focus-rail';
 
 export const metadata: Metadata = {
   title: 'MoodMaps — Luisina Dorsi',
@@ -41,17 +42,37 @@ const MVP_STEPS = [
   },
 ];
 
+/* ── Screen gallery card ──────────────────────────────────────── */
+function ScreenCard({ bg, ratio, src, alt }: { bg: string; ratio: string; src: string; alt: string }) {
+  return (
+    <div
+      className="w-full rounded-2xl overflow-hidden relative"
+      style={{
+        aspectRatio: ratio,
+        backgroundColor: bg,
+        border: '1px solid #a8c9de4d',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        padding: '24px',
+      }}
+    >
+      <Image src={src} alt={alt} fill unoptimized className="object-contain" />
+    </div>
+  );
+}
+
 /* ── Shared editorial two-column section ──────────────────────── */
 function EditorialSection({
   labelText,
   heading,
+  subtitle,
   children,
   right,
   bordered = true,
 }: {
   labelText: string;
   heading: React.ReactNode;
-  children: React.ReactNode;
+  subtitle?: React.ReactNode;
+  children?: React.ReactNode;
   right?: React.ReactNode;
   bordered?: boolean;
 }) {
@@ -69,12 +90,19 @@ function EditorialSection({
               >
                 {heading}
               </h2>
+              {subtitle && (
+                <p className="mt-6 text-lg text-[var(--color-text)]/70 leading-relaxed">
+                  {subtitle}
+                </p>
+              )}
             </div>
 
             {/* Right col */}
-            <div className="flex flex-col gap-6">
-              {children}
-            </div>
+            {children && (
+              <div className="flex flex-col gap-6">
+                {children}
+              </div>
+            )}
           </div>
 
           {right && <div className="mt-12">{right}</div>}
@@ -160,7 +188,7 @@ export default function MoodMapsPage() {
                   style={{
                     fontFamily: 'var(--font-sans)',
                     fontSize: 18,
-                    color: 'var(--color-text)',
+                    color: 'oklab(0.265625 0.00656099 0.00965214 / 0.7)',
                     lineHeight: 1.4,
                   }}
                 >
@@ -171,20 +199,57 @@ export default function MoodMapsPage() {
           </dl>
         </div>
 
-        {/* Feature carousel */}
-        <div className="max-w-6xl mx-auto px-4 md:px-20">
-          <FadeIn delay={200} className="mt-14 pb-16">
-            <FeatureCarousel
-              features={MOODMAPS_FEATURES}
-              autoPlayMs={3000}
-              leftBg="#2d6b5a"
-              rightBg="#f7ede8"
-              activeChipBg="#d4643a"
+      </header>
+
+      {/* ── Key Features ──────────────────────────────────────────── */}
+      <section className="bg-[#2d6b5a]" style={{ paddingTop: 64, paddingBottom: 80 }}>
+        <div className="container max-w-6xl">
+          <FadeIn>
+            <SectionLabel text="05 Key Features" color="#f5f0e8" lineColor="#f5f0e8" className="mb-8" />
+            <FocusRail
+              items={[
+                {
+                  id: 1,
+                  title: 'Emotional Onboarding',
+                  description: 'Select your current state — GIS layers activate automatically.',
+                  meta: 'FEATURE 01',
+                  imageSrc: '/moodmaps/Emotional Onboarding.png',
+                },
+                {
+                  id: 2,
+                  title: 'GIS Map Interface',
+                  description: 'Environmental layers show noise, density, green space in real time.',
+                  meta: 'FEATURE 02',
+                  imageSrc: '/moodmaps/GIS Map Interface.png',
+                },
+                {
+                  id: 3,
+                  title: 'Place Recommendations',
+                  description: 'Nearby spaces surface based on how you feel, not just where you are.',
+                  meta: 'FEATURE 03',
+                  imageSrc: '/moodmaps/Place recomendations.png',
+                },
+                {
+                  id: 4,
+                  title: 'Adaptive Routes',
+                  description: 'Routes that prioritise your wellbeing over speed.',
+                  meta: 'FEATURE 04',
+                  imageSrc: '/moodmaps/Adatpive Routes.png',
+                },
+                {
+                  id: 5,
+                  title: 'Hybrid Control',
+                  description: 'System intelligence meets user agency — always in control.',
+                  meta: 'FEATURE 05',
+                  imageSrc: '/moodmaps/Hybrid Control.png',
+                },
+              ]}
+              autoPlay={false}
+              loop={true}
             />
           </FadeIn>
         </div>
-
-      </header>
+      </section>
 
       {/* ── The Brief ─────────────────────────────────────────── */}
       <section className="py-32 border-b border-[var(--color-text)]/8">
@@ -207,7 +272,7 @@ export default function MoodMapsPage() {
                 {/* Challenge */}
                 <div>
                   <SectionLabel text="Challenge" className="mb-4" />
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'var(--color-text)', lineHeight: 1.7 }}>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'oklab(0.265625 0.00656099 0.00965214 / 0.7)', lineHeight: 1.7 }}>
                     Urban navigation optimises for speed. MoodMaps explores what happens when it
                     optimises for emotional wellbeing instead.
                   </p>
@@ -227,7 +292,7 @@ export default function MoodMapsPage() {
                       <li
                         key={item}
                         className="flex items-center gap-3"
-                        style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'var(--color-text)', lineHeight: 1.6 }}
+                        style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'oklab(0.265625 0.00656099 0.00965214 / 0.7)', lineHeight: 1.6 }}
                       >
                         <span style={{ color: TERRA, fontWeight: 700, lineHeight: 1 }}>·</span>
                         {item}
@@ -274,24 +339,8 @@ export default function MoodMapsPage() {
             emotional context
           </>
         }
-        right={
-          <div
-            className="w-full rounded-2xl flex items-end p-8"
-            style={{ aspectRatio: '16/7', backgroundColor: '#f0b89a' }}
-          >
-            <span className="text-xs uppercase tracking-widest text-white/60">
-              GIS Environmental Layers
-            </span>
-          </div>
-        }
-      >
-        <p className="text-lg text-[var(--color-text)]/70 leading-relaxed">
-          Urban environments shape how we feel as we move through them. Noise, crowd density,
-          lighting and green space directly affect stress and cognitive load. Yet most navigation
-          systems treat space as emotionally neutral terrain — optimising for speed, never for
-          feeling.
-        </p>
-      </EditorialSection>
+        subtitle="Navigation optimises for speed. But the fastest route isn't always the one that helps you decompress, focus, or recover. Urban space is never emotionally neutral — design rarely acknowledges that."
+      />
 
       {/* ── The Opportunity ───────────────────────────────────── */}
       <EditorialSection
@@ -302,13 +351,28 @@ export default function MoodMapsPage() {
             into lived experience
           </>
         }
-      >
-        <p className="text-lg text-[var(--color-text)]/70 leading-relaxed">
-          Cities already collect environmental data. MoodMaps explores how these datasets —
-          noise levels, pedestrian density, lighting, green space — can inform real-time
-          spatial recommendations tailored to emotional state.
-        </p>
-      </EditorialSection>
+        subtitle="Cities already generate the data — noise maps, pedestrian density, green space indices, lighting conditions. The design opportunity isn't collection. It's translation. MoodMaps explores how that infrastructure can inform real-time spatial recommendations tailored to how you actually feel."
+        right={
+          <FadeIn delay={120}>
+            <div
+              className="w-full rounded-2xl overflow-hidden relative"
+              style={{
+                aspectRatio: '3/2',
+                backgroundColor: '#F0B89A',
+                border: '1px solid #a8c9de4d',
+              }}
+            >
+              <Image
+                src="/moodmaps/the-opportunity.png"
+                alt="GIS Environmental Layers"
+                fill
+                unoptimized
+                className="object-contain"
+              />
+            </div>
+          </FadeIn>
+        }
+      />
 
       {/* ── MVP Scope ─────────────────────────────────────────── */}
       <section className="py-32 border-b border-[var(--color-text)]/8">
@@ -353,13 +417,35 @@ export default function MoodMapsPage() {
                   >
                     {step.heading}
                   </h3>
-                  <p className="text-sm text-[var(--color-text)]/65 leading-relaxed">
+                  <p className="text-base text-[var(--color-text)]/65 leading-relaxed">
                     {step.body}
                   </p>
                 </div>
               </FadeIn>
             ))}
           </div>
+
+          {/* Full-width feature image */}
+          <FadeIn delay={280}>
+            <div
+              className="rounded-2xl overflow-hidden relative w-full"
+              style={{
+                aspectRatio: '16/9',
+                marginTop: 24,
+                backgroundColor: '#fdf8f5',
+                border: `1px solid ${ACCENT}4d`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              }}
+            >
+              <Image
+                src="/moodmaps/four-features.png"
+                alt="Four features, one emotional layer"
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -383,23 +469,80 @@ export default function MoodMapsPage() {
                   style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'var(--color-text)', lineHeight: 1.7, opacity: 0.75 }}
                 >
                   Environmental layers activate automatically based on emotional input, but users
-                  retain full manual control. The city adapts to you — but you always stay in
-                  control.
+                  retain full manual control. This isn't a system that decides for you — it's one
+                  that starts the conversation.
+                </p>
+                <p
+                  style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'var(--color-text)', lineHeight: 1.7, opacity: 0.75, marginTop: 16 }}
+                >
+                  Every layer can be adjusted, turned off, or overridden. The sliders aren't
+                  decorative — they're the system acknowledging that no algorithm knows your city
+                  better than you do.
                 </p>
               </div>
 
               {/* Right — single full-width image (60%) */}
               <div className="md:col-span-3">
                 <div
-                  className="w-full rounded-2xl flex items-end p-6"
-                  style={{ aspectRatio: '16/9', backgroundColor: ACCENT }}
+                  className="w-full rounded-2xl overflow-hidden relative"
+                  style={{ aspectRatio: '4/3', backgroundColor: ACCENT, border: '1px solid #a8c9de4d', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
                 >
-                  <span className="text-xs uppercase tracking-widest text-white/60">Hybrid interaction diagram</span>
+                  <Image
+                    src="/moodmaps/user-agency.png"
+                    alt="User agency"
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
                 </div>
               </div>
 
             </div>
           </FadeIn>
+        </div>
+      </section>
+
+      {/* ── Screen Gallery ────────────────────────────────────── */}
+      <section className="py-32 border-b border-[var(--color-text)]/8">
+        <div className="container max-w-6xl">
+
+          <FadeIn>
+            <SectionLabel text="04  Screens" className="mb-12" />
+          </FadeIn>
+
+          <div className="flex flex-col gap-5">
+
+            {/* Row 1 — full width */}
+            <FadeIn delay={60}>
+              <ScreenCard bg="#FDF8F5" ratio="16/7" src="/moodmaps/onboarding.png" alt="MoodMaps Onboarding" />
+            </FadeIn>
+
+            {/* Row 2 — full width */}
+            <FadeIn delay={120}>
+              <ScreenCard bg="#8FC4A0" ratio="16/7" src="/moodmaps/emotional-onboarding.png" alt="MoodMaps Emotional Onboarding" />
+            </FadeIn>
+
+            {/* Row 3 — 2 col */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <FadeIn delay={180}>
+                <ScreenCard bg="#FDF8F5" ratio="4/3" src="/moodmaps/home.png" alt="MoodMaps Home" />
+              </FadeIn>
+              <FadeIn delay={210}>
+                <ScreenCard bg="#F0B89A" ratio="4/3" src="/moodmaps/experince-detail.png" alt="Serenity Garden Mindful Route" />
+              </FadeIn>
+            </div>
+
+            {/* Row 4 — 2 col */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <FadeIn delay={240}>
+                <ScreenCard bg="#A8C9DE" ratio="4/3" src="/moodmaps/navigation.png" alt="Start Serenity Garden Mindful Route" />
+              </FadeIn>
+              <FadeIn delay={270}>
+                <ScreenCard bg="#A8C9DE" ratio="4/3" src="/moodmaps/profile.png" alt="User Profile" />
+              </FadeIn>
+            </div>
+
+          </div>
         </div>
       </section>
 
