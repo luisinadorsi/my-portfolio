@@ -167,8 +167,8 @@ export default function MoodMapsPage() {
           >
             {[
               { label: 'Role',     value: 'UX Researcher & Designer' },
-              { label: 'Timeline', value: '10 weeks'                  },
-              { label: 'Tools',    value: 'Figma, ArcGIS, Miro'       },
+              { label: 'Timeline', value: '2 weeks'                    },
+              { label: 'Tools',    value: 'Figma Make • ArcGIS • Miro' },
               { label: 'Team',     value: 'Solo project'              },
             ].map(({ label, value }) => (
               <div key={label} className="pl-4" style={{ borderLeft: `2px solid ${TERRA}` }}>

@@ -85,7 +85,7 @@ export default function HomePage() {
           </FadeIn>
 
           {/* Bento project grid — editorial, clip-path reveal on hover */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ gridAutoRows: 'minmax(280px, auto)' }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ gridAutoRows: 'minmax(320px, auto)' }}>
 
             {/* MoodMaps — featured editorial (2 cols × 1 row) */}
             <FadeIn className="md:col-span-2" delay={0}>
