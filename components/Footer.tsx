@@ -1,144 +1,259 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
-/* ── Circle config ─────────────────────────────────────────────── */
-const CIRCLES = [
-  { color: '#8fc4a0', size: 220, opacity: 0.40, top: '10%',  left: '8%'  },
-  { color: '#e8869a', size: 180, opacity: 0.35, top: '20%',  left: '72%' },
-  { color: '#a8c9de', size: 130, opacity: 0.30, top: '-10%', left: '45%' },
-  { color: '#d4643a', size: 110, opacity: 0.25, top: '40%',  left: '28%' },
-  { color: '#f0b89a', size:  80, opacity: 0.35, top: '15%',  left: '88%' },
-  { color: '#2d6b5a', size:  70, opacity: 0.20, top: '50%',  left: '58%' },
-];
+// ── Constants ───────────────────────────────────────────────────────────────
+const NODE_COUNT  = 55;
+const SPRING_K    = 0.04;
+const DAMPING     = 0.82;
+const REPEL_R     = 110;   // px
+const REPEL_F     = 2.2;
+const LINE_DIST   = 110;   // px — max distance for connection lines
+const BG          = '#2d5a3d';
+const CURSOR_COLOR = '#e8a07a';
 
-/* ── Repel circle ─────────────────────────────────────────────── */
-function RepelCircle({
-  color, size, opacity, top, left, mouseX, mouseY, containerRef,
-}: (typeof CIRCLES)[0] & {
-  mouseX: ReturnType<typeof useMotionValue<number>>;
-  mouseY: ReturnType<typeof useMotionValue<number>>;
-  containerRef: React.RefObject<HTMLElement | null>;
-}) {
-  const selfRef = useRef<HTMLDivElement>(null);
+// Warm colours that read on dark green
+const PALETTE = [
+  '#8ab5a0', '#e8a07a', '#c4b5a0', '#c4603a',
+  '#a8ccb8', '#f0d0b0', '#5a8f70',
+] as const;
 
-  const x = useSpring(useMotionValue(0), { stiffness: 80, damping: 18, mass: 0.6 });
-  const y = useSpring(useMotionValue(0), { stiffness: 80, damping: 18, mass: 0.6 });
-
-  useEffect(() => {
-    const MAX = 30;
-    const RADIUS = size * 1.8; // influence radius
-
-    const unsubX = mouseX.on('change', (mx) => {
-      const el = selfRef.current;
-      const container = containerRef.current;
-      if (!el || !container) return;
-
-      const rect = container.getBoundingClientRect();
-      const elRect = el.getBoundingClientRect();
-      const cx = elRect.left + elRect.width / 2 - rect.left;
-      const cy = elRect.top  + elRect.height / 2 - rect.top;
-      const my = mouseY.get();
-
-      const dx = cx - mx;
-      const dy = cy - my;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < RADIUS && dist > 0) {
-        const force = Math.max(0, 1 - dist / RADIUS);
-        x.set((-dx / dist) * force * MAX);
-        y.set((-dy / dist) * force * MAX);
-      } else {
-        x.set(0);
-        y.set(0);
-      }
-    });
-
-    const unsubY = mouseY.on('change', () => {
-      // Y changes trigger the same logic via X's handler on next X change;
-      // fire it manually by pinging X with its current value.
-      mouseX.set(mouseX.get());
-    });
-
-    return () => { unsubX(); unsubY(); };
-  }, [mouseX, mouseY, size, x, y, containerRef]);
-
-  return (
-    <motion.div
-      ref={selfRef}
-      aria-hidden="true"
-      style={{
-        position: 'absolute',
-        top,
-        left,
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        backgroundColor: color,
-        opacity,
-        translateX: x,
-        translateY: y,
-        pointerEvents: 'none',
-        transform: `translate(-50%, -50%)`,
-        willChange: 'transform',
-      }}
-    />
-  );
+// ── Types ───────────────────────────────────────────────────────────────────
+interface Node {
+  ox: number; oy: number;   // home position
+  x:  number; y:  number;   // current position
+  vx: number; vy: number;   // velocity
+  r:     number;
+  bAmp:  number;            // breathe amplitude
+  bSpeed: number;           // breathe phase per frame
+  bPhase: number;
+  dPhase: number;           // drift oscillation phase
+  dAmp:  number;            // drift force amplitude (px/frame²)
+  color:   string;
+  opacity: number;
 }
 
-/* ── Footer ───────────────────────────────────────────────────── */
+// ── Component ───────────────────────────────────────────────────────────────
 export default function Footer() {
-  const containerRef = useRef<HTMLElement>(null);
-  const mouseX = useMotionValue(-9999);
-  const mouseY = useMotionValue(-9999);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  const cursor    = useRef({ x: -9999, y: -9999 });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set(e.clientX - rect.left);
-    mouseY.set(e.clientY - rect.top);
-  };
+  useEffect(() => {
+    const canvas = canvasRef.current!;
+    const footer = footerRef.current!;
+    const ctx    = canvas.getContext('2d')!;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const handleMouseLeave = () => {
-    mouseX.set(-9999);
-    mouseY.set(-9999);
-  };
+    let w = 0, h = 0, nodes: Node[] = [], t = 0, raf = 0;
+
+    const initNodes = () => {
+      nodes = Array.from({ length: NODE_COUNT }, () => {
+        const ox = 40 + Math.random() * (w - 80);
+        const oy = 20 + Math.random() * (h - 40);
+        return {
+          ox, oy, x: ox, y: oy, vx: 0, vy: 0,
+          r:      2.5 + Math.random() * 4.5,
+          bAmp:   0.8 + Math.random() * 1.4,
+          bSpeed: 0.007 + Math.random() * 0.013,
+          bPhase: Math.random() * Math.PI * 2,
+          dPhase: Math.random() * Math.PI * 2,
+          dAmp:   0.30 + Math.random() * 0.45,
+          color:   PALETTE[Math.floor(Math.random() * PALETTE.length)],
+          opacity: 0.55 + Math.random() * 0.40,
+        };
+      });
+    };
+
+    // ── resize ──────────────────────────────────────────────────
+    const resize = () => {
+      const dpr  = window.devicePixelRatio || 1;
+      const rect = footer.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width  = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width  = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      initNodes();
+    };
+
+    // ── render one frame ─────────────────────────────────────────
+    const render = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, w, h);
+
+      // Connection lines — opacity proportional to proximity
+      ctx.lineWidth = 0.7;
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist >= LINE_DIST) continue;
+          ctx.globalAlpha = (1 - dist / LINE_DIST) * 0.28;
+          ctx.strokeStyle = 'rgba(200,210,200,1)';
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+
+      // Nodes
+      for (const n of nodes) {
+        const r = Math.max(0.5, n.r + n.bAmp * Math.sin(t * n.bSpeed + n.bPhase));
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+        ctx.fillStyle  = n.color;
+        ctx.globalAlpha = n.opacity;
+        ctx.fill();
+      }
+
+      // Custom cursor — only when inside footer
+      const cx = cursor.current.x, cy = cursor.current.y;
+      if (cx > 0 && cy > 0 && cx < w && cy < h) {
+        ctx.globalAlpha = 0.92;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+        ctx.fillStyle = CURSOR_COLOR;
+        ctx.fill();
+
+        ctx.globalAlpha = 0.40;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+        ctx.strokeStyle = CURSOR_COLOR;
+        ctx.lineWidth   = 1;
+        ctx.stroke();
+      }
+
+      ctx.globalAlpha = 1;
+    };
+
+    // ── physics tick ─────────────────────────────────────────────
+    const tick = () => {
+      t++;
+      const cx = cursor.current.x, cy = cursor.current.y;
+      const hasPointer = cx > 0 && cy > 0;
+
+      for (const n of nodes) {
+        // Spring back to home
+        const sx = -(n.x - n.ox) * SPRING_K;
+        const sy = -(n.y - n.oy) * SPRING_K;
+
+        // Slow sinusoidal drift (period ≈ 35 s)
+        const dfx = n.dAmp * Math.sin(t * 0.003 + n.dPhase);
+        const dfy = n.dAmp * Math.cos(t * 0.003 + n.dPhase + 1.3);
+
+        // Cursor/touch repulsion
+        let rx = 0, ry = 0;
+        if (hasPointer) {
+          const dx = n.x - cx, dy = n.y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < REPEL_R && dist > 0) {
+            const force = REPEL_F * (1 - dist / REPEL_R) / dist;
+            rx = dx * force;
+            ry = dy * force;
+          }
+        }
+
+        n.vx = (n.vx + sx + dfx + rx) * DAMPING;
+        n.vy = (n.vy + sy + dfy + ry) * DAMPING;
+        n.x += n.vx;
+        n.y += n.vy;
+      }
+
+      render();
+      raf = requestAnimationFrame(tick);
+    };
+
+    // ── pointer events (mouse + touch) ───────────────────────────
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      cursor.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    const onMouseLeave = () => { cursor.current = { x: -9999, y: -9999 }; };
+
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      cursor.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    };
+    const onTouchEnd = () => { cursor.current = { x: -9999, y: -9999 }; };
+
+    resize();
+    window.addEventListener('resize', resize);
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mouseleave', onMouseLeave);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd);
+
+    if (reduced) {
+      render();
+    } else {
+      raf = requestAnimationFrame(tick);
+    }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('mousemove', onMouseMove);
+      canvas.removeEventListener('mouseleave', onMouseLeave);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
 
   return (
     <footer
-      ref={containerRef}
+      ref={footerRef}
       className="relative overflow-hidden"
-      style={{
-        height: 300,
-        backgroundColor: 'var(--color-bg)',
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      style={{ height: 360, cursor: 'none', backgroundColor: BG }}
     >
-      {/* Repelling circles */}
-      {CIRCLES.map((c, i) => (
-        <RepelCircle
-          key={i}
-          {...c}
-          mouseX={mouseX}
-          mouseY={mouseY}
-          containerRef={containerRef}
-        />
-      ))}
-
-      {/* Footer text */}
-      <p
-        className="absolute bottom-6 inset-x-0 text-center text-xs"
+      {/* Canvas fills entire footer — receives all pointer events */}
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
         style={{
-          fontFamily: 'var(--font-sans)',
-          color: 'rgba(42,36,32,0.50)',
-          letterSpacing: '0.02em',
-          zIndex: 1,
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
+          display: 'block',
         }}
+      />
+
+      {/* Editorial footer headline */}
+      <div
+        className="relative z-10 flex flex-col items-center justify-center h-full gap-4"
+        style={{ pointerEvents: 'none' }}
       >
-        Designed &amp; built with care by Luisina Dorsi
-      </p>
+        <p
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(1.6rem, 4vw, 2.8rem)',
+            color: 'rgba(253,248,245,0.88)',
+            letterSpacing: '-0.02em',
+            textAlign: 'center',
+          }}
+        >
+          Let&rsquo;s design something that feels.
+        </p>
+        <p
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: 12,
+            color: 'rgba(253,248,245,0.38)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Designed &amp; built with care by Luisina Dorsi
+        </p>
+      </div>
     </footer>
   );
 }

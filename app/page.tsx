@@ -1,8 +1,7 @@
 import FadeIn from '@/components/FadeIn';
-import Circle from '@/components/Circle';
 import BentoCard from '@/components/BentoCard';
 import ProjectImage from '@/components/ProjectImage';
-import { LetterSwapPingPong } from '@/components/ui/letter-swap';
+import TopoCanvas from '@/components/TopoCanvas';
 import { PhotoGallery, StatsRow } from '@/components/ui/gallery';
 import { ContactSocialStrip } from '@/components/ui/contact-social-strip';
 import { SectionLabel } from '@/components/ui/section-label';
@@ -14,11 +13,8 @@ export default function HomePage() {
   return (
     <>
       {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden min-h-screen flex items-center justify-center section-diagonal bg-[var(--color-bg)] pt-32 pb-16">
-        {/* Plain circles — no blur, no gradient */}
-        <Circle color="#8fc4a0" size={640} opacity={0.30} className="-right-48 -top-32"   delay={0}    />
-        <Circle color="#e8869a" size={380} opacity={0.25} className="-left-32  -bottom-20" delay={1800} />
-        <Circle color="#a8c9de" size={240} opacity={0.20} className="-left-16  top-16"     delay={900}  />
+      <section className="relative overflow-hidden min-h-screen flex items-center justify-center section-diagonal pt-32 pb-16 [@media(hover:hover)]:cursor-crosshair" style={{ backgroundColor: '#fdf8f5' }}>
+        <TopoCanvas />
 
         <div className="container relative z-10 flex flex-col items-center text-center max-w-4xl">
           <h1
@@ -29,25 +25,11 @@ export default function HomePage() {
               animation: 'heroFadeIn 0.8s 0.1s var(--ease-organic) both',
             }}
           >
-            {/* Line 1 */}
-            <LetterSwapPingPong label="Where" staggerFrom="first" staggerDuration={0.04} />{' '}
-            <LetterSwapPingPong label="data" staggerFrom="first" staggerDuration={0.04} />{' '}
-            <LetterSwapPingPong label="meets" staggerFrom="first" staggerDuration={0.04} />
+            Where data meets
             <br />
-            {/* Line 2 */}
-            <LetterSwapPingPong
-              label="emotion."
-              staggerFrom="first"
-              staggerDuration={0.04}
-              style={{ fontStyle: 'italic', color: 'var(--color-terra)' }}
-            />
+            <em style={{ fontStyle: 'italic', color: 'var(--color-terra)' }}>emotion.</em>
             <br />
-            {/* Line 3 */}
-            <LetterSwapPingPong label="I" staggerFrom="first" staggerDuration={0.04} />{' '}
-            <LetterSwapPingPong label="design" staggerFrom="first" staggerDuration={0.04} />{' '}
-            <LetterSwapPingPong label="the" staggerFrom="first" staggerDuration={0.04} />{' '}
-            <LetterSwapPingPong label="space" staggerFrom="first" staggerDuration={0.04} />{' '}
-            <LetterSwapPingPong label="between." staggerFrom="first" staggerDuration={0.04} />
+            I design the space between.
           </h1>
           <p
             className="mt-8 text-base md:text-lg text-[var(--color-text)]/65 max-w-lg leading-[1.7]"
@@ -167,9 +149,7 @@ export default function HomePage() {
       </section>
 
       {/* ── About ─────────────────────────────────────────────────── */}
-      <section id="about" className="py-24 relative overflow-hidden">
-        <Circle color="#e8869a" size={360} opacity={0.18} className="-right-24 -top-16"  delay={1200} />
-        <Circle color="#8fc4a0" size={260} opacity={0.15} className="-left-20 bottom-0" delay={3000} />
+      <section id="about" className="py-24 relative overflow-hidden" style={{ backgroundColor: '#fdf8f5' }}>
 
         <div className="container relative z-10 px-20 md:px-24 xl:px-28 max-w-6xl mx-auto">
 
