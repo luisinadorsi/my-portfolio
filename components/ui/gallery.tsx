@@ -108,6 +108,7 @@ export function PhotoGallery() {
               fill
               sizes="208px"
               className="object-cover"
+              priority
             />
           </motion.div>
         );

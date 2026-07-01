@@ -60,9 +60,24 @@ export default function BentoCard({ project, children, overlayTitleColor = '#fdf
       aria-label={`View ${project.title} case study`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      style={{
+        transform: 'translateZ(0)',
+        WebkitTransform: 'translateZ(0)',
+        willChange: 'transform',
+        isolation: 'isolate',
+      }}
     >
-      {/* overflow-hidden clips both base content and overlay to card bounds */}
-      <div className="relative h-full rounded-2xl overflow-hidden">
+      {/* overflow-hidden + border-radius: translateZ(0) prevents Safari compositing flash */}
+      <div
+        className="relative h-full rounded-2xl overflow-hidden"
+        style={{
+          backgroundColor: '#fdf8f5',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+        }}
+      >
 
         {/* Base card — always visible */}
         <div className="h-full">{children}</div>

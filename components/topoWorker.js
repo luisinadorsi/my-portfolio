@@ -1,16 +1,17 @@
 // Runs entirely off main thread — receives an OffscreenCanvas via postMessage.
 
-// ── Config ───────────────────────────────────────────────────────────────────
-const CELL     = 5;   // 3→5 = ~2.7x fewer marching-squares cells
-const PEAK_N   = 8;
-const LEVEL_N  = 55;
-const NODE_N   = 38;
+// ── Config (let — overridden at init for mobile) ──────────────────────────────
+let CELL     = 5;   // 3→5 = ~2.7x fewer marching-squares cells
+let PEAK_N   = 8;
+let LEVEL_N  = 55;
+let NODE_N   = 38;
 const CUR_R    = 120;
 const CUR_D    = -0.55;
 const CONN     = 110;
 const K_NEAR   = 5;   // nearest neighbours per node
 const FILL_MS  = 90;  // ms between fill-layer redraws
 const NBR_EVERY = 30; // frames between neighbour recomputes
+let fillDisabled = false;
 
 // ── Palettes ──────────────────────────────────────────────────────────────────
 const FILL_RGB = [
@@ -23,9 +24,13 @@ const FILL_RGB = [
 const LINE_C = ['#d4845a', '#8ab5a0', '#b5a090', '#5a6e60', '#2d5a3d'];
 const NODE_C = ['#2d5a3d', '#8ab5a0', '#5a6e60', '#b5a090', '#c4603a', '#d4845a'];
 
-const thresholds = Array.from({ length: LEVEL_N }, (_, i) =>
-  0.04 + (i / (LEVEL_N - 1)) * 0.90,
-);
+let thresholds = [];
+
+function buildThresholds() {
+  thresholds = Array.from({ length: LEVEL_N }, (_, i) =>
+    0.04 + (i / (LEVEL_N - 1)) * 0.90,
+  );
+}
 
 // ── State ────────────────────────────────────────────────────────────────────
 let canvas, ctx;
@@ -187,10 +192,12 @@ function render(np) {
   ctx.fillStyle = '#fdf8f5';
   ctx.fillRect(0, 0, w, h);
 
-  // Layer 1 — pixelated fill
-  ctx.imageSmoothingEnabled = false;
-  ctx.globalAlpha = 1;
-  ctx.drawImage(fillC, 0, 0, w, h);
+  // Layer 1 — pixelated fill (skipped on mobile)
+  if (!fillDisabled) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.globalAlpha = 1;
+    ctx.drawImage(fillC, 0, 0, w, h);
+  }
 
   // Layer 2 — contour lines
   ctx.lineCap = 'round';
@@ -241,7 +248,7 @@ function render(np) {
 function tick() {
   t++;
   const now = performance.now();
-  if (now - lastFillMs > FILL_MS) {
+  if (!fillDisabled && now - lastFillMs > FILL_MS) {
     computeBase();
     buildFill();
     lastFillMs = now;
@@ -280,7 +287,15 @@ function handleResize(cssW, cssH, dpr) {
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
-function init(offscreen, cssW, cssH, dpr) {
+function init(offscreen, cssW, cssH, dpr, mobile) {
+  if (mobile) {
+    CELL = 8;
+    LEVEL_N = 30;
+    NODE_N = 18;
+    fillDisabled = true;
+  }
+  buildThresholds();
+
   canvas = offscreen;
   ctx    = canvas.getContext('2d');
 
@@ -299,7 +314,7 @@ function init(offscreen, cssW, cssH, dpr) {
   initPeaks();
   initNodes();
   computeBase();
-  buildFill();
+  if (!fillDisabled) buildFill();
   buildDraw();
   lastFillMs = performance.now();
   rafId = scheduleFrame(tick);
@@ -309,7 +324,7 @@ function init(offscreen, cssW, cssH, dpr) {
 self.onmessage = (e) => {
   const { type } = e.data;
   if (type === 'init') {
-    init(e.data.canvas, e.data.width, e.data.height, e.data.dpr);
+    init(e.data.canvas, e.data.width, e.data.height, e.data.dpr, e.data.mobile);
   } else if (type === 'mouse') {
     cursor.x = e.data.x;
     cursor.y = e.data.y;
@@ -317,7 +332,7 @@ self.onmessage = (e) => {
     cancelFrame(rafId);
     handleResize(e.data.width, e.data.height, e.data.dpr);
     computeBase();
-    buildFill();
+    if (!fillDisabled) buildFill();
     buildDraw();
     rafId = scheduleFrame(tick);
   }

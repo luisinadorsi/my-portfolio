@@ -79,6 +79,7 @@ export default function TopoCanvas() {
   useEffect(() => {
     const canvas = ref.current!;
     const parent = (canvas.parentElement ?? canvas) as HTMLElement;
+    const isMobile = !window.matchMedia('(hover: hover)').matches || window.innerWidth < 768;
 
     // ── Worker path ────────────────────────────────────────────────────────
     if (typeof (canvas as HTMLCanvasElement & { transferControlToOffscreen?: () => OffscreenCanvas }).transferControlToOffscreen === 'function') {
@@ -88,7 +89,7 @@ export default function TopoCanvas() {
       const sendInit = () => {
         const rect = (canvas.parentElement ?? canvas).getBoundingClientRect();
         worker.postMessage(
-          { type: 'init', canvas: offscreen, width: rect.width, height: rect.height, dpr: window.devicePixelRatio || 1 },
+          { type: 'init', canvas: offscreen, width: rect.width, height: rect.height, dpr: window.devicePixelRatio || 1, mobile: isMobile },
           [offscreen],
         );
       };
@@ -127,6 +128,11 @@ export default function TopoCanvas() {
     }
 
     // ── Fallback: main-thread rendering (old Safari / no OffscreenCanvas) ──
+    const lvlN  = isMobile ? 30 : LEVEL_N;
+    const nodeN = isMobile ? 18 : NODE_N;
+    const cell  = isMobile ? 8  : CELL;
+    const fillOn = !isMobile;
+
     const ctx = canvas.getContext('2d')!;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -154,7 +160,7 @@ export default function TopoCanvas() {
     const cursor = { x: -9999, y: -9999 };
     let peaks: Peak[] = [];
     let nodes: PNode[] = [];
-    const thresholds = Array.from({ length: LEVEL_N }, (_, i) => 0.04 + (i / (LEVEL_N - 1)) * 0.90);
+    const thresholds = Array.from({ length: lvlN }, (_, i) => 0.04 + (i / (lvlN - 1)) * 0.90);
 
     const initPeaks = () => {
       peaks = Array.from({ length: PEAK_N }, () => ({
@@ -166,7 +172,7 @@ export default function TopoCanvas() {
       }));
     };
     const initNodes = () => {
-      nodes = Array.from({ length: NODE_N }, () => ({
+      nodes = Array.from({ length: nodeN }, () => ({
         bx: 0.05 + Math.random() * 0.90, by: 0.05 + Math.random() * 0.90,
         oax: 0.03 + Math.random() * 0.05, osx: 0.0002 + Math.random() * 0.0003, opx: Math.random() * Math.PI * 2,
         oay: 0.02 + Math.random() * 0.04, osy: 0.0002 + Math.random() * 0.0003, opy: Math.random() * Math.PI * 2,
@@ -183,7 +189,7 @@ export default function TopoCanvas() {
       canvas.width = w * dpr; canvas.height = h * dpr;
       canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      gw = Math.ceil(w / CELL) + 1; gh = Math.ceil(h / CELL) + 1;
+      gw = Math.ceil(w / cell) + 1; gh = Math.ceil(h / cell) + 1;
       cw = w / (gw - 1); ch = h / (gh - 1);
       baseGrid = new Float32Array(gw * gh);
       drawGrid = new Float32Array(gw * gh);
@@ -236,10 +242,12 @@ export default function TopoCanvas() {
     const render = () => {
       ctx.clearRect(0, 0, w, h);
       ctx.fillStyle = '#fdf8f5'; ctx.fillRect(0, 0, w, h);
-      ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1;
-      ctx.drawImage(fillC, 0, 0, w, h);
+      if (fillOn) {
+        ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1;
+        ctx.drawImage(fillC, 0, 0, w, h);
+      }
       ctx.lineCap = 'round';
-      for (let i = 0; i < LEVEL_N; i++) {
+      for (let i = 0; i < lvlN; i++) {
         const isIdx = i % 5 === 0;
         ctx.globalAlpha = isIdx ? 0.22 : 0.08;
         ctx.lineWidth   = isIdx ? 0.9  : 0.4;
@@ -251,8 +259,8 @@ export default function TopoCanvas() {
         (n.by + n.oay * Math.cos(t * n.osy + n.opy)) * h,
       ]);
       ctx.strokeStyle = '#d4845a'; ctx.lineWidth = 0.8;
-      for (let i = 0; i < NODE_N; i++) {
-        for (let j = i + 1; j < NODE_N; j++) {
+      for (let i = 0; i < nodeN; i++) {
+        for (let j = i + 1; j < nodeN; j++) {
           const dx = np[i][0] - np[j][0], dy = np[i][1] - np[j][1];
           const d  = Math.sqrt(dx * dx + dy * dy);
           if (d < CONN) {
@@ -261,7 +269,7 @@ export default function TopoCanvas() {
           }
         }
       }
-      for (let i = 0; i < NODE_N; i++) {
+      for (let i = 0; i < nodeN; i++) {
         const n = nodes[i];
         const r = Math.max(0.5, n.r + n.ba * Math.sin(t * n.bs + n.bp));
         ctx.globalAlpha = n.op; ctx.fillStyle = n.col;
@@ -273,7 +281,7 @@ export default function TopoCanvas() {
 
     const tick = () => {
       t++;
-      if (t % FILL_EVERY === 0) { computeBase(); buildFill(); }
+      if (t % FILL_EVERY === 0) { computeBase(); if (fillOn) buildFill(); }
       buildDraw(); render();
       raf = requestAnimationFrame(tick);
     };
@@ -290,7 +298,9 @@ export default function TopoCanvas() {
     };
     const onTouchEnd = () => { cursor.x = -9999; cursor.y = -9999; };
 
-    initPeaks(); initNodes(); resize(); computeBase(); buildFill(); buildDraw();
+    initPeaks(); initNodes(); resize(); computeBase();
+    if (fillOn) buildFill();
+    buildDraw();
     window.addEventListener('resize', resize);
     parent.addEventListener('mousemove', onMove);
     parent.addEventListener('mouseleave', onLeave);
