@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 // ── Shared config (fallback path only) ───────────────────────────────────────
 const CELL       = 3;
@@ -72,19 +73,45 @@ function march(
   ctx.stroke();
 }
 
+function downloadBlob(blob: Blob) {
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href          = url;
+  a.download      = `topo-${Date.now()}.png`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Delay revocation so the browser can consume the URL before it's freed
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function TopoCanvas() {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const ref         = useRef<HTMLCanvasElement>(null);
+  const workerRef   = useRef<Worker | null>(null);
+  const isWorkerRef = useRef(false);
+  const [mobile, setMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const isMobile = !window.matchMedia('(hover: hover)').matches;
+    setMobile(isMobile);
+    if (isMobile) return;
+
     const canvas = ref.current!;
     const parent = (canvas.parentElement ?? canvas) as HTMLElement;
-    const isMobile = !window.matchMedia('(hover: hover)').matches || window.innerWidth < 768;
 
     // ── Worker path ────────────────────────────────────────────────────────
     if (typeof (canvas as HTMLCanvasElement & { transferControlToOffscreen?: () => OffscreenCanvas }).transferControlToOffscreen === 'function') {
       const offscreen = canvas.transferControlToOffscreen();
-      const worker = new Worker(new URL('./topoWorker.js', import.meta.url));
+      const worker    = new Worker(new URL('./topoWorker.js', import.meta.url));
+
+      workerRef.current   = worker;
+      isWorkerRef.current = true;
+
+      worker.onmessage = (e) => {
+        if (e.data.type === 'capture') downloadBlob(e.data.blob);
+      };
 
       const sendInit = () => {
         const rect = (canvas.parentElement ?? canvas).getBoundingClientRect();
@@ -99,14 +126,14 @@ export default function TopoCanvas() {
         const rect = canvas.getBoundingClientRect();
         worker.postMessage({ type: 'mouse', x: e.clientX - rect.left, y: e.clientY - rect.top });
       };
-      const onLeave = () => worker.postMessage({ type: 'mouse', x: -9999, y: -9999 });
-      const onTouch = (e: TouchEvent) => {
+      const onLeave    = () => worker.postMessage({ type: 'mouse', x: -9999, y: -9999 });
+      const onTouch    = (e: TouchEvent) => {
         const rect  = canvas.getBoundingClientRect();
         const touch = e.touches[0];
         worker.postMessage({ type: 'mouse', x: touch.clientX - rect.left, y: touch.clientY - rect.top });
       };
       const onTouchEnd = () => worker.postMessage({ type: 'mouse', x: -9999, y: -9999 });
-      const onResize = () => {
+      const onResize   = () => {
         const rect = (canvas.parentElement ?? canvas).getBoundingClientRect();
         worker.postMessage({ type: 'resize', width: rect.width, height: rect.height, dpr: window.devicePixelRatio || 1 });
       };
@@ -119,6 +146,8 @@ export default function TopoCanvas() {
 
       return () => {
         worker.terminate();
+        workerRef.current   = null;
+        isWorkerRef.current = false;
         parent.removeEventListener('mousemove', onMove);
         parent.removeEventListener('mouseleave', onLeave);
         parent.removeEventListener('touchmove', onTouch);
@@ -133,7 +162,7 @@ export default function TopoCanvas() {
     const cell  = isMobile ? 8  : CELL;
     const fillOn = !isMobile;
 
-    const ctx = canvas.getContext('2d')!;
+    const ctx     = canvas.getContext('2d')!;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let w = 0, h = 0, gw = 0, gh = 0, cw = 0, ch = 0, t = 0, raf = 0;
@@ -148,7 +177,7 @@ export default function TopoCanvas() {
     grainC.width = grainC.height = 256;
     (() => {
       const gx = grainC.getContext('2d')!;
-      const d = gx.createImageData(256, 256);
+      const d  = gx.createImageData(256, 256);
       for (let i = 0; i < 256 * 256; i++) {
         d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = 0;
         d.data[i * 4 + 3] = Math.round(Math.random()) * Math.floor(10 + Math.random() * 35);
@@ -290,8 +319,8 @@ export default function TopoCanvas() {
       const rect = canvas.getBoundingClientRect();
       cursor.x = e.clientX - rect.left; cursor.y = e.clientY - rect.top;
     };
-    const onLeave = () => { cursor.x = -9999; cursor.y = -9999; };
-    const onTouch = (e: TouchEvent) => {
+    const onLeave    = () => { cursor.x = -9999; cursor.y = -9999; };
+    const onTouch    = (e: TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
       const touch = e.touches[0];
       cursor.x = touch.clientX - rect.left; cursor.y = touch.clientY - rect.top;
@@ -318,6 +347,19 @@ export default function TopoCanvas() {
       parent.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
+
+  if (mobile === true) {
+    return (
+      <Image
+        src="/hero-topo-static.png"
+        alt=""
+        fill
+        priority
+        aria-hidden="true"
+        style={{ objectFit: 'cover', opacity: 0.85, zIndex: 0, pointerEvents: 'none' }}
+      />
+    );
+  }
 
   return (
     <canvas

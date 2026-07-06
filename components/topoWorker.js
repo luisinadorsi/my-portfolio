@@ -328,6 +328,10 @@ self.onmessage = (e) => {
   } else if (type === 'mouse') {
     cursor.x = e.data.x;
     cursor.y = e.data.y;
+  } else if (type === 'capture') {
+    canvas.convertToBlob({ type: 'image/png' })
+      .then(blob => { self.postMessage({ type: 'capture', blob }); })
+      .catch(err => { console.error('[topoWorker] convertToBlob failed:', err); });
   } else if (type === 'resize') {
     cancelFrame(rafId);
     handleResize(e.data.width, e.data.height, e.data.dpr);

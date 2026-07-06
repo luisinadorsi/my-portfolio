@@ -2,6 +2,7 @@ import FadeIn from '@/components/FadeIn';
 import BentoCard from '@/components/BentoCard';
 import ProjectImage from '@/components/ProjectImage';
 import TopoCanvas from '@/components/TopoCanvas';
+import HeroCursor from '@/components/HeroCursor';
 import { PhotoGallery, StatsRow } from '@/components/ui/gallery';
 import { ContactSocialStrip } from '@/components/ui/contact-social-strip';
 import { SectionLabel } from '@/components/ui/section-label';
@@ -13,8 +14,9 @@ export default function HomePage() {
   return (
     <>
       {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden min-h-screen flex items-center justify-center section-diagonal pt-32 pb-16 [@media(hover:hover)]:cursor-crosshair" style={{ backgroundColor: '#fdf8f5' }}>
+      <section className="relative overflow-hidden min-h-screen flex items-center justify-center section-diagonal pt-32 pb-16 [@media(hover:hover)]:cursor-none" style={{ backgroundColor: '#fdf8f5' }}>
         <TopoCanvas />
+        <HeroCursor />
 
         <div className="container relative z-10 flex flex-col items-center text-center max-w-4xl">
           <h1
@@ -43,7 +45,8 @@ export default function HomePage() {
             style={{ animation: 'heroFadeIn 0.8s 0.3s var(--ease-organic) both' }}
           >
             <a
-              href="mailto:luisina@example.com"
+              href="mailto:hello@luisinadorsi.com"
+              data-cursor-grow
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[var(--color-terra)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
             >
               Say hello →
@@ -247,7 +250,7 @@ export default function HomePage() {
                   }}
                 >
                   <a
-                    href="mailto:luisina@example.com"
+                    href="mailto:hello@luisinadorsi.com"
                     className="transition-opacity hover:opacity-80"
                     style={{ color: 'inherit', textDecoration: 'none' }}
                   >
